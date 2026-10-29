@@ -4,6 +4,13 @@ export type RiotAccount = {
   tagLine: string;
 };
 
+export const RIOT_ROUTING_REGIONS = ["americas", "europe", "asia", "sea"] as const;
+export type RiotRoutingRegion = (typeof RIOT_ROUTING_REGIONS)[number];
+
+export function isRiotRoutingRegion(value: unknown): value is RiotRoutingRegion {
+  return typeof value === "string" && RIOT_ROUTING_REGIONS.includes(value as RiotRoutingRegion);
+}
+
 export type RiotMatchSummary = {
   metadata: {
     matchId: string;
@@ -66,33 +73,45 @@ async function riotGet<T>(url: string, errorLabel: string): Promise<T> {
 }
 
 export function parseRiotId(riotId: string): { gameName: string; tagLine: string } {
-  const [gameName, tagLine = "global"] = riotId.trim().split("#");
+  const separatorIndex = riotId.indexOf("#");
+  const gameName = riotId.slice(0, separatorIndex).trim();
+  const tagLine = riotId.slice(separatorIndex + 1).trim();
 
-  if (!gameName || !tagLine) {
+  if (separatorIndex <= 0 || !gameName || !tagLine || tagLine.includes("#")) {
     throw new Error("Riot ID must follow the format name#tag");
   }
 
   return { gameName, tagLine };
 }
 
-export async function fetchAccountByRiotId(riotId: string): Promise<RiotAccount> {
+export async function fetchAccountByRiotId(
+  riotId: string,
+  region: RiotRoutingRegion = "americas",
+): Promise<RiotAccount> {
   const { gameName, tagLine } = parseRiotId(riotId);
   return riotGet<RiotAccount>(
-    `https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`,
+    `https://${region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`,
     "Riot account lookup failed"
   );
 }
 
-export async function fetchMatchIdsByPuuid(puuid: string, count = 5): Promise<string[]> {
+export async function fetchMatchIdsByPuuid(
+  puuid: string,
+  count = 5,
+  region: RiotRoutingRegion = "americas",
+): Promise<string[]> {
   return riotGet<string[]>(
-    `https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/${encodeURIComponent(puuid)}/ids?start=0&count=${count}`,
+    `https://${region}.api.riotgames.com/lol/match/v5/matches/by-puuid/${encodeURIComponent(puuid)}/ids?start=0&count=${count}`,
     "Riot match list fetch failed"
   );
 }
 
-export async function fetchMatchById(matchId: string): Promise<RiotMatchSummary> {
+export async function fetchMatchById(
+  matchId: string,
+  region: RiotRoutingRegion = "americas",
+): Promise<RiotMatchSummary> {
   return riotGet<RiotMatchSummary>(
-    `https://americas.api.riotgames.com/lol/match/v5/matches/${encodeURIComponent(matchId)}`,
+    `https://${region}.api.riotgames.com/lol/match/v5/matches/${encodeURIComponent(matchId)}`,
     "Riot match fetch failed"
   );
 }

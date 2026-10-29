@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import type { MatchMetrics } from "@/lib/metrics";
+import type { RiotRoutingRegion } from "@/lib/riot";
 import { CoachFeedback } from "../CoachFeedback/CoachFeedback";
 import { ErrorNotice } from "../ErrorNotice/ErrorNotice";
 import { MatchList } from "../MatchList/MatchList";
@@ -33,7 +34,7 @@ export function LeagueCopilot() {
   const [matches, setMatches] = useState<MatchMetrics[]>([]);
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  const analyzeRiotId = async (riotId: string) => {
+  const analyzeRiotId = async (riotId: string, region: RiotRoutingRegion) => {
     setLoading(true);
     setError(null);
     setFeedback(null);
@@ -42,7 +43,7 @@ export function LeagueCopilot() {
       const riotResponse = await fetch("/api/riot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ riotId, count: 5 }),
+        body: JSON.stringify({ riotId, count: 5, region }),
       });
 
       const riotJson = (await riotResponse.json()) as RiotApiResponse & { error?: string };

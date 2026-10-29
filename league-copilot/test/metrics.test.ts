@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { calculateMatchMetrics, buildCoachPrompt } from "./metrics";
+import { calculateMatchMetrics, buildCoachPrompt } from "../lib/metrics";
 
 describe("calculateMatchMetrics", () => {
   it("computes the expected per-match metrics and rounding", () => {
