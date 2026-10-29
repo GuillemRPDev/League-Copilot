@@ -82,3 +82,27 @@ export function buildCoachPrompt(matches: Array<Pick<MatchMetrics, "championId" 
     "Keep the tone direct, coach-like, and action-focused."
   ].join("\n");
 }
+
+export function buildFallbackFeedback(matches: MatchMetrics[]): string {
+  const average = (values: number[]) => values.reduce((sum, value) => sum + value, 0) / Math.max(values.length, 1);
+  const averageCs = average(matches.map((match) => match.csPerMinute));
+  const averageDeaths = average(matches.map((match) => match.deathsPerMinute));
+  const averageVision = average(matches.map((match) => match.visionScore));
+  const wins = matches.filter((match) => match.win).length;
+
+  const priority = averageCs < 5
+    ? "Prioridad: mejorar el farmeo durante los primeros minutos; busca superar 5 CS/min de forma consistente."
+    : averageDeaths > 0.45
+      ? "Prioridad: reducir muertes evitables; antes de pelear, comprueba visión y la posición del jungla enemigo."
+      : "Prioridad: mantener la consistencia y convertir tu ventaja de recursos en objetivos.";
+
+  return [
+    "Análisis automático de tus últimas partidas",
+    `Resultado: ${wins}/${matches.length} victorias | CS/min: ${averageCs.toFixed(1)} | Muertes/min: ${averageDeaths.toFixed(2)} | Visión: ${averageVision.toFixed(1)}`,
+    priority,
+    "Dos acciones concretas:",
+    "1) Revisa los 10 primeros minutos y anota cada oleada perdida sin presión enemiga.",
+    "2) Coloca visión antes de avanzar y transforma cada prioridad de línea en placas, torres o dragón.",
+    "Modo sin proveedor externo: configura Ollama o Anthropic para feedback generado por un modelo."
+  ].join("\n");
+}

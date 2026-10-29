@@ -1,0 +1,15 @@
+import styles from "./ErrorNotice.module.css";
+
+type ErrorNoticeProps = {
+  message: string | null;
+};
+
+export function ErrorNotice({ message }: ErrorNoticeProps) {
+  if (!message) return null;
+
+  return (
+    <p className={styles.notice} role="alert">
+      {message}
+    </p>
+  );
+}

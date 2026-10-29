@@ -1,0 +1,33 @@
+.header {
+  padding: 24px;
+  border: 1px solid #334155;
+  border-radius: 16px;
+  background: rgb(15 23 42 / 88%);
+  box-shadow: 0 16px 40px rgb(0 0 0 / 18%);
+}
+
+.eyebrow {
+  margin: 0;
+  color: #22d3ee;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 12px 0 0;
+  color: #fff;
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+@media (max-width: 600px) {
+  .header {
+    padding: 20px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+}

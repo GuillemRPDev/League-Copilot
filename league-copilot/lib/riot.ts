@@ -34,6 +34,37 @@ export type RiotParticipant = {
   win: boolean;
 };
 
+function riotRequestHeaders(): HeadersInit {
+  const apiKey = process.env.RIOT_API_KEY?.trim();
+
+  if (!apiKey) {
+    throw new Error("RIOT_API_KEY is not configured");
+  }
+
+  return {
+    Accept: "application/json",
+    "X-Riot-Token": apiKey,
+  };
+}
+
+async function riotGet<T>(url: string, errorLabel: string): Promise<T> {
+  const response = await fetch(url, {
+    method: "GET",
+    headers: riotRequestHeaders(),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Riot API key is invalid or expired. Generate a new development key at developer.riotgames.com");
+    }
+
+    const errorText = await response.text();
+    throw new Error(`${errorLabel}: ${response.status} ${errorText}`);
+  }
+
+  return (await response.json()) as T;
+}
+
 export function parseRiotId(riotId: string): { gameName: string; tagLine: string } {
   const [gameName, tagLine = "global"] = riotId.trim().split("#");
 
@@ -46,61 +77,22 @@ export function parseRiotId(riotId: string): { gameName: string; tagLine: string
 
 export async function fetchAccountByRiotId(riotId: string): Promise<RiotAccount> {
   const { gameName, tagLine } = parseRiotId(riotId);
-  const apiKey = process.env.RIOT_API_KEY;
-
-  if (!apiKey) {
-    throw new Error("RIOT_API_KEY is not configured");
-  }
-
-  const response = await fetch(
-    `https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}?api_key=${apiKey}`,
-    { method: "GET", headers: { "Accept": "application/json" } }
+  return riotGet<RiotAccount>(
+    `https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`,
+    "Riot account lookup failed"
   );
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Riot account lookup failed: ${response.status} ${errorText}`);
-  }
-
-  return (await response.json()) as RiotAccount;
 }
 
 export async function fetchMatchIdsByPuuid(puuid: string, count = 5): Promise<string[]> {
-  const apiKey = process.env.RIOT_API_KEY;
-
-  if (!apiKey) {
-    throw new Error("RIOT_API_KEY is not configured");
-  }
-
-  const response = await fetch(
-    `https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/${encodeURIComponent(puuid)}/ids?start=0&count=${count}&api_key=${apiKey}`,
-    { method: "GET", headers: { Accept: "application/json" } }
+  return riotGet<string[]>(
+    `https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/${encodeURIComponent(puuid)}/ids?start=0&count=${count}`,
+    "Riot match list fetch failed"
   );
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Riot match list fetch failed: ${response.status} ${errorText}`);
-  }
-
-  return (await response.json()) as string[];
 }
 
 export async function fetchMatchById(matchId: string): Promise<RiotMatchSummary> {
-  const apiKey = process.env.RIOT_API_KEY;
-
-  if (!apiKey) {
-    throw new Error("RIOT_API_KEY is not configured");
-  }
-
-  const response = await fetch(
-    `https://americas.api.riotgames.com/lol/match/v5/matches/${encodeURIComponent(matchId)}?api_key=${apiKey}`,
-    { method: "GET", headers: { Accept: "application/json" } }
+  return riotGet<RiotMatchSummary>(
+    `https://americas.api.riotgames.com/lol/match/v5/matches/${encodeURIComponent(matchId)}`,
+    "Riot match fetch failed"
   );
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Riot match fetch failed: ${response.status} ${errorText}`);
-  }
-
-  return (await response.json()) as RiotMatchSummary;
 }
