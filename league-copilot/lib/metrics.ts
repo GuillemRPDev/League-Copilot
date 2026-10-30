@@ -68,18 +68,18 @@ export function buildCoachPrompt(matches: Array<Pick<MatchMetrics, "championId" 
 
   const focus =
     worstCs.csPerMinute === Number.POSITIVE_INFINITY
-      ? "Keep your early-game pressure and last-hit discipline consistent."
-      : `Your main priority is farming: your CS/min is ${worstCs.csPerMinute.toFixed(1)}, which is below your usual pace. Focus on better last-hitting and lane pressure.`;
+      ? "Mantén una presión constante en línea y mejora los últimos golpes a los súbditos."
+      : `Tu prioridad principal es mejorar el farmeo de súbditos: tu CS/min más bajo es ${worstCs.csPerMinute.toFixed(1)}. Practica los últimos golpes y evita perder oleadas por retiradas mal sincronizadas.`;
 
   return [
-    "League of Legends coaching",
-    "You are a concise coach. Review the recent matches and return a brief prioritized summary.",
-    `Average CS/min: ${averageCs.toFixed(1)} | Average KDA: ${averageKda.toFixed(2)} | Average gold/min: ${averageGold.toFixed(0)} | Average deaths/min: ${averageDeaths.toFixed(2)}`,
-    `Priority: ${focus}`,
-    "2 concrete improvements:",
-    "1) Improve lane consistency by securing more last hits and reducing dead time in lane.",
-    "2) Reduce risky fights and improve vision control to avoid feeding patterns and reduce death pressure.",
-    "Keep the tone direct, coach-like, and action-focused."
+    "Coaching de League of Legends (MOBA)",
+    "En este contexto, CS significa súbditos enemigos eliminados con último golpe y farmeo significa conseguir oro de súbditos. No hables de agricultura ni de otros juegos.",
+    "Analiza las partidas recientes y responde exclusivamente en español.",
+    `Promedios: CS/min ${averageCs.toFixed(1)} | KDA ${averageKda.toFixed(2)} | oro/min ${averageGold.toFixed(0)} | muertes/min ${averageDeaths.toFixed(2)}`,
+    `Prioridad principal: ${focus}`,
+    "Da exactamente dos acciones breves, específicas de League of Legends y que el jugador pueda practicar en su próxima partida.",
+    "Incluye detalles observables de línea, oleadas, últimos golpes o retiradas; evita consejos vagos y no inventes mecánicas.",
+    "Formato: Prioridad, Acción 1, Acción 2. Sin introducción ni razonamiento interno."
   ].join("\n");
 }
 
