@@ -59,8 +59,10 @@ describe("buildCoachPrompt", () => {
       },
     ]);
 
-    expect(prompt).toContain("League of Legends coaching");
-    expect(prompt).toContain("priority");
+    expect(prompt).toContain("Coaching de League of Legends");
+    expect(prompt).toContain("Prioridad principal");
+    expect(prompt).toContain("responde exclusivamente en español");
+    expect(prompt).toContain("súbditos enemigos");
     expect(prompt).toContain("CS/min");
   });
 });
